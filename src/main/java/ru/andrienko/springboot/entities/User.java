@@ -2,6 +2,7 @@ package ru.andrienko.springboot.entities;
 
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -12,27 +13,39 @@ public class User {
     private long id;
 
     @Column(unique = true)
-//    @NotEmpty(message = "Login should not be empty")
-//    @Size(min = 5, max = 35, message = "Login should be between 5 and 25 characters")
     private String login;
 
     @Column
-//    @NotEmpty(message = "Password should not be empty")
-//    @Size(min = 5, max = 35, message = "Password should be between 5 and 25 characters")
     private String password;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
+    @JoinTable(name = "authority_user", joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "authority_id"))
+
+    private Set<Authority> authorities;
+
+    public void setAuthorities(Set<Authority> authorities) {
+        this.authorities = authorities;
+    }
+
+    public Set<Authority> getAuthorities() {
+        return authorities;
+    }
 
     public User() {
     }
 
-    public User(long id, String login, String password) {
+    public User(long id, String login, String password, Set<Authority> authorities) {
         this.id = id;
         this.login = login;
         this.password = password;
+        this.authorities = authorities;
     }
 
-    public User(String login, String password) {
+    public User(String login, String password,Set<Authority> authorities) {
         this.login = login;
         this.password = password;
+        this.authorities = authorities;
     }
 
     public long getId() {

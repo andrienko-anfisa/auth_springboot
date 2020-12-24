@@ -11,6 +11,7 @@
     <td>Login</td>
     <td>Password</td>
     <td>Changes</td>
+    <td>Authorities</td>
 </tr>
 <div th:each="user : ${users}">
         <tr>
@@ -20,6 +21,7 @@
             <td><a th:href="@{/editUser/{id}(id=${user.getId()})}">Edit</a>
                 <a th:href="@{/deleteUser/{id}(id=${user.getId()})}">Delete</a></td>
             </td>
+            <td th:text="${user.getAuthorities()}">user</td>
 
         </tr>
 
