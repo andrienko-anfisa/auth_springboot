@@ -6,6 +6,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.andrienko.springboot.entities.User;
 
 import java.util.List;
@@ -31,12 +32,11 @@ public class UsersDAO {
         return user;
     }
 
-
-    public long insertUser(User user) {
+    public void insertUser(User user) {
         Session session = sessionFactory.openSession();
-        long id = (Long) session.save(user);
+        session.setDefaultReadOnly(false);
+        session.saveOrUpdate(user);
         session.close();
-        return id;
     }
 
 

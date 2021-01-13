@@ -2,23 +2,32 @@ package ru.andrienko.springboot.service;
 
 import org.hibernate.HibernateException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.andrienko.springboot.dao.UsersDAO;
+import ru.andrienko.springboot.entities.Authority;
 import ru.andrienko.springboot.entities.User;
 import ru.andrienko.springboot.exceptions.DBException;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     @Autowired
     public UsersDAO usersDAO;
+    @Autowired
+    BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
-    public long addUser(User user) throws DBException {
+    public void addUser(User user) throws DBException {
         try {
-            return usersDAO.insertUser(user);
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+           usersDAO.insertUser(user);
         } catch (HibernateException e) {
             throw new DBException(e);
         }
@@ -49,12 +58,20 @@ public class UserService {
         }
     }
 
-    public User getUserByLogin(String login) throws DBException {
-        try {
-            return usersDAO.getUser(login);
-        } catch (HibernateException e) {
-            throw new DBException(e);
-        }
-    }
+//    public User getUserByLogin(String login) throws DBException {
+//        try {
+//            return usersDAO.getUser(login);
+//        } catch (HibernateException e) {
+//            throw new DBException(e);
+//        }
+//    }
 
+    @Override
+    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+        User user = usersDAO.getUser(login);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found");
+        }
+        return user;
+    }
 }
